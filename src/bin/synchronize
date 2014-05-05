@@ -2,7 +2,7 @@
 <?php
 
 if ($argc !== 4) {
-    echo "php xhui_synchronize.php <directory> <endpoint> <apikey>\n";
+    echo "php synchronize <directory> <endpoint> <apikey>\n";
     exit(1);
 }
 
