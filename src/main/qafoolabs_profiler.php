@@ -147,7 +147,7 @@ function qafoolabs_profiler_start_custom_timer($group, $identifier)
         return;
     }
 
-    return $GLOBALS['qafoolabs_profiler']->startCustomTimer($group, $id);
+    return $GLOBALS['qafoolabs_profiler']->startCustomTimer($group, $identifier);
 }
 
 function qafoolabs_profiler_stop_custom_timer($id)

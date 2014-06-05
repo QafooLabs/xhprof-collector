@@ -13,7 +13,9 @@
 
 namespace Xhprof\StartDecisions;
 
-class OrStart
+use Xhprof\StartDecision;
+
+class OrStart implements StartDecision
 {
     private $left;
     private $right;

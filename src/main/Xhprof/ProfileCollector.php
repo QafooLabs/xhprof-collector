@@ -99,7 +99,7 @@ class ProfileCollector
 
         $this->customTimers[] = array('s' => microtime(true), 'id' => $identifier, 'group' => $group);
 
-        return count($this->customTimers);
+        return count($this->customTimers) - 1;
     }
 
     public function stopCustomTimer($id)
@@ -108,7 +108,7 @@ class ProfileCollector
             return;
         }
 
-        $this->customTimers[$id]['wt'] = microtime(true) - $this->customTimers[$id]['s'];
+        $this->customTimers[$id]['wt'] = (int)round((microtime(true) - $this->customTimers[$id]['s']) * 1000000);
         unset($this->customTimers[$id]['s']);
     }
 
@@ -131,7 +131,7 @@ class ProfileCollector
         }
 
         if ($this->profiling) {
-            $this->backend->storeProfile($this->operationName, $data, $this->customMeasurements);
+            $this->backend->storeProfile($this->operationName, $data, $this->customTimers);
         } else {
             $this->backend->storeMeasurement($this->operationName, $duration, $this->operationType);
         }
