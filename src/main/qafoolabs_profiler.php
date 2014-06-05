@@ -131,23 +131,30 @@ function qafoolabs_profiler_set_operation_type($type)
 }
 
 /**
- * Add a custom measurement datapoint to the profiling data.
+ * Start a custom measurement timer to the profiling data.
  *
  * This can be for example a specific SQL query and its wall time.
- * You can attach the custom data to a specific function or
- * method call by setting the $parent parameter to something different
- * than main(), for example mysql_query.
+ * You can attach the custom data to a specific group, such as
+ * SQL queries or cURL calls.
  *
- * @param string $name
- * @param int $wallTime in Microseconds
- * @param string $parent
- * @return void
+ * @param string $group
+ * @param string $identifier
+ * @return int
  */
-function qafoolabs_profiler_add_custom_measurement($name, $wallTime, $parent = 'main()')
+function qafoolabs_profiler_start_custom_timer($group, $identifier)
 {
     if ( ! isset($GLOBALS['qafoolabs_profiler'])) {
         return;
     }
 
-    $GLOBALS['qafoolabs_profiler']->addCustomMeasurement($name, $wallTime, $parent);
+    return $GLOBALS['qafoolabs_profiler']->startCustomTimer($group, $id);
+}
+
+function qafoolabs_profiler_stop_custom_timer($id)
+{
+    if ( ! isset($GLOBALS['qafoolabs_profiler'])) {
+        return;
+    }
+
+    return $GLOBALS['qafoolabs_profiler']->stopCustomTimer($id);
 }

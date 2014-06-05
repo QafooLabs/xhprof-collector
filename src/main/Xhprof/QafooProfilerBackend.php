@@ -43,7 +43,7 @@ class QafooProfilerBackend implements Backend
         fclose($fp);
     }
 
-    public function storeProfile($operationName, array $data, array $customMeasurements)
+    public function storeProfile($operationName, array $data, array $customTimers)
     {
         if (!isset($data['main()']['wt']) || !$data['main()']['wt']) {
             return;
@@ -53,7 +53,7 @@ class QafooProfilerBackend implements Backend
             'apiKey' => $this->apiKey,
             'op' => $operationName,
             'data' => $data,
-            'custom' => $customMeasurements,
+            'custom' => $customTimers,
         ));
 
         $fp = @stream_socket_client("unix:///tmp/qprofd.sock", $errno, $errstr, 0.005);

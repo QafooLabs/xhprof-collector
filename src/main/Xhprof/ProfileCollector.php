@@ -23,7 +23,7 @@ class ProfileCollector
     private $started = false;
     private $shutdownRegistered = false;
     private $operationName;
-    private $customMeasurements = array();
+    private $customTimers = array();
     private $operationType = self::TYPE_WEB;
 
     public function __construct(Backend $backend, StartDecision $starter)
@@ -82,18 +82,34 @@ class ProfileCollector
         $this->operationName = $operationName;
     }
 
-    public function addCustomMeasurement($name, $wallTime, $parent = 'main()')
+    /**
+     * Start a custom timer
+     *
+     * Custom Timers are aggregated by groups, such as PDO queries, curl
+     * calls and so on.
+     *
+     * @param string $group
+     * @param string $identifier
+     */
+    public function startCustomTimer($group, $identifier)
     {
         if ( ! $this->started || ! $this->profiling) {
             return;
         }
 
-        if ( ! isset($this->customMeasurements[$parent][$name])) {
-            $this->customMeasurements[$parent][$name] = array('ct' => 0, 'wt' => 0);
+        $this->customTimers[] = array('s' => microtime(true), 'id' => $identifier, 'group' => $group);
+
+        return count($this->customTimers);
+    }
+
+    public function stopCustomTimer($id)
+    {
+        if (!isset($this->customTimers[$id]) || isset($this->customTimers[$id]['wt'])) {
+            return;
         }
 
-        $this->customMeasurements[$parent][$name]['wt'] += $wallTime;
-        $this->customMeasurements[$parent][$name]['ct']++;
+        $this->customTimers[$id]['wt'] = microtime(true) - $this->customTimers[$id]['s'];
+        unset($this->customTimers[$id]['s']);
     }
 
     public function stop($operationName = null)
