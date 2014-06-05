@@ -133,7 +133,7 @@ class ProfileCollector
         if ($this->profiling) {
             $this->backend->storeProfile($this->operationName, $data, $this->customTimers);
         } else {
-            $this->backend->storeMeasurement($this->operationName, $duration, $this->operationType);
+            $this->backend->storeMeasurement($this->operationName, (int)round($duration * 1000), $this->operationType);
         }
     }
 

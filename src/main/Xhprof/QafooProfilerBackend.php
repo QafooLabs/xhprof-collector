@@ -30,7 +30,7 @@ class QafooProfilerBackend implements Backend
 
     public function storeMeasurement($operationName, $duration, $operationType)
     {
-        $measurement = array('op' => $operationName, 'ot' => $operationType, 'wt' => round($duration / 1000), 'apiKey' => $this->apiKey);
+        $measurement = array('op' => $operationName, 'ot' => $operationType, 'wt' => $duration, 'apiKey' => $this->apiKey);
 
         $fp = @stream_socket_client("udp://127.0.0.1:8135", $errno, $errstr, 1);
         stream_set_timeout($fp, 0, 20);
