@@ -25,6 +25,7 @@ class ProfileCollector
     private $operationName;
     private $customTimers = array();
     private $operationType = self::TYPE_WEB;
+    private $error = false;
 
     public function __construct(Backend $backend, StartDecision $starter)
     {
@@ -42,6 +43,7 @@ class ProfileCollector
         $this->customMeasurements = array();
         $this->started = microtime(true);
         $this->profiling = $this->starter->shouldProfile();
+        $this->error = false;
         $this->operationType = php_sapi_name() === 'cli' ? self::TYPE_WORKER : self::TYPE_WEB;
 
         if ( ! $this->shutdownRegistered) {
@@ -60,16 +62,27 @@ class ProfileCollector
     {
         $lastError = error_get_last();
 
-        if ($lastError['type'] === E_ERROR || $lastError['type'] === E_PARSE || $lastError['type'] === E_COMPILE_ERROR) {
-            return $this->logFatal($lastError['message'], $lastError['file'], $lastError['line'], $lastError['type']);
+        if ($this->isFatal($lastError)) {
+            $this->logFatal($lastError['message'], $lastError['file'], $lastError['line'], $lastError['type']);
+        } else if (function_exists('http_response_code') && http_response_code() >= 500) {
+            $this->logFatal(sprintf('PHP request set error HTTP resonse code "%d".', http_response_code()));
         }
 
         $this->stop();
     }
 
-    public function logFatal($message, $file, $line, $type = E_USER_ERROR)
+    private function isFatal($lastError)
     {
-        // not implemented yet
+        return $lastError['type'] === E_ERROR || $lastError['type'] === E_PARSE || $lastError['type'] === E_COMPILE_ERROR;
+    }
+
+    public function logFatal($message, $file = false, $line = false, $type = E_USER_ERROR)
+    {
+        if ($this->error) { // logging fatal allowed once
+            return;
+        }
+
+        $this->error = array('message' => $message, 'file' => $file, 'line' => $line, 'type' => $type);
     }
 
     public function setOperationType($operationType)
@@ -118,7 +131,8 @@ class ProfileCollector
             return;
         }
 
-        $data = xhprof_disable();
+        $data = ($this->profiling) ?  xhprof_disable() : null;
+
         $duration = microtime(true) - $this->started;
         $this->started = false;
 
@@ -130,7 +144,9 @@ class ProfileCollector
             $this->operationName = $this->guessOperationName();
         }
 
-        if ($this->profiling) {
+        if ($this->error) {
+            // do nothing for now
+        } else if ($this->profiling) {
             $this->backend->storeProfile($this->operationName, $data, $this->customTimers);
         } else {
             $this->backend->storeMeasurement($this->operationName, (int)round($duration * 1000), $this->operationType);

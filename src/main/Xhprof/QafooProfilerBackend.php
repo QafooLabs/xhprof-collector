@@ -56,13 +56,13 @@ class QafooProfilerBackend implements Backend
             'custom' => $customTimers,
         ));
 
-        $fp = @stream_socket_client("unix:///tmp/qprofd.sock", $errno, $errstr, 0.005);
+        $fp = @stream_socket_client("unix:///tmp/qprofd.sock", $errno, $errstr, 0.5);
 
         if (!$fp) {
             return;
         }
 
-        stream_set_timeout($fp, 0, 10000); // 10 milliseconds max
+        stream_set_timeout($fp, 0, 50000); // 10 milliseconds max
         @fwrite($fp, $data);
         @fclose($fp);
     }
