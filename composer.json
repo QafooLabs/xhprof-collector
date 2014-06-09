@@ -2,10 +2,14 @@
     "name": "qafoolabs/xhprof-collector",
     "description": "Simple library that wraps Xhprof profile collection.",
     "license": "MIT",
+
     "autoload": {
         "psr-0": {"Xhprof\\": "src/main"},
         "files": ["src/main/qafoolabs_profiler.php"]
     },
+
+    "bin" : [ "src/bin/synchronize" ],
+
     "require-dev": {
         "phake/phake": "@stable",
         "mikey179/vfsStream": "@stable"
